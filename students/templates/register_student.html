@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0" style="max-width: 500px; margin: auto;">
+        <div class="card-header bg-dark text-white text-center py-3">
+            <h5 class="mb-0">New Student Registration</h5>
+        </div>
+        <div class="card-body p-4">
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Full Name (Username)</label>
+                    <input type="text" name="username" class="form-control" placeholder="Enter Student Name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Set Password</label>
+                    <input type="password" name="password" class="form-control" value="password123" required>
+                    <small class="text-muted">Default is password123</small>
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Roll Number</label>
+                    <input type="text" name="roll_number" class="form-control" placeholder="MCA/2026/XX" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Department</label>
+                    <input type="text" name="department" class="form-control" value="MCA" required>
+                </div>
+                <button type="submit" class="btn btn-success w-100 py-2 mt-3">Register Student & Create Account</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-link w-100 text-decoration-none mt-2">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

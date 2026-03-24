@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SMS | Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #e6e6fa;
+            /* Classic Soft Lavender */
+            font-family: sans-serif;
+            color: #000;
+        }
+
+        .sidebar {
+            height: 100vh;
+            width: 240px;
+            position: fixed;
+            background: #0d6efd;
+            /* Solid Blue */
+            color: white;
+            padding: 20px;
+            border-right: 6px solid #000;
+            /* Bold Black Separation */
+        }
+
+        .sidebar h3 {
+            font-weight: 800;
+            text-decoration: underline;
+            letter-spacing: 1px;
+            color: #fff;
+        }
+
+        .sidebar a {
+            color: #e6e6fa;
+            /* Lavender Text */
+            text-decoration: none;
+            display: block;
+            padding: 12px;
+            border-radius: 5px;
+            font-weight: 700;
+            /* Bold links */
+            transition: all 0.2s;
+            margin-bottom: 5px;
+        }
+
+        .sidebar a:hover {
+            background: #000;
+            /* High contrast hover */
+            color: #fff;
+            text-decoration: underline;
+            transform: translateX(4px);
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 30px;
+        }
+
+        .card {
+            border: 2px solid #000;
+            border-radius: 12px;
+            box-shadow: 4px 4px 0px #000;
+            /* Brutalist shadow */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <h3>SMS Portal</h3>
+        <hr>
+        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
+        {% if user.is_superuser %}
+        <a href="/admin" class="text-warning">⚙️ Admin Panel</a>
+        {% endif %}
+
+        {% if user.is_staff or user.is_superuser or 'teacher' in user.username %}
+        <a href="{% url 'mark_attendance' %}">📋 Mark Attendance</a>
+        {% endif %}
+
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-link mt-5 text-danger p-0 text-decoration-none">🚪 Logout</button>
+        </form>
+    </div>
+    <div class="content">
+        {% if user.is_staff or user.is_superuser or 'teacher' in user.username %}
+        <div class="d-flex justify-content-between mb-4">
+            <h4>Welcome, {{ user.username|title }}</h4>
+            <span class="badge bg-dark p-2">
+                Role: Teacher/Admin
+            </span>
+        </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

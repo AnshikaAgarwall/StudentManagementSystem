@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Summary Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Attendance Hub 
+                {% if current_class %}
+                | {{ current_class.class_name }} ({{ current_class.section }})
+                {% endif %}
+            </h5>
+            <a href="{% url 'dashboard' %}" class="btn btn-sm btn-outline-light">Back to Dashboard</a>
+        </div>
+        
+        <div class="card-body bg-light border-bottom p-3" style="border-top: 2px solid #000; border-bottom: 2px solid #000 !important; background-color: #e6e6fa !important;">
+            <form method="GET" class="d-flex align-items-center mb-0">
+                <label class="fw-bold text-dark me-3 mb-0"><em><u>Select Class to Manage:</u></em></label>
+                <select name="class_id" class="form-select form-select-sm w-auto border-dark fw-bold" style="border-width: 2px;" onchange="this.form.submit()">
+                    {% for c in my_classes %}
+                    <option value="{{ c.id }}" {% if current_class and c.id == current_class.id %}selected{% endif %}>
+                        {{ c.class_name }} ({{ c.section }})
+                    </option>
+                    {% empty %}
+                    <option>No classes assigned to you.</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+        
+        <div class="card-body">
+            <h6 class="text-secondary mb-3">Previous 2 Days Summary:</h6>
+            {% if recent_attendance %}
+            <div class="row">
+                {% for r in recent_attendance %}
+                <div class="col-md-6 mb-2">
+                    <div class="p-3 border rounded shadow-sm bg-light">
+                        <h6 class="text-primary fw-bold">{{ r.date }}</h6>
+                        <span class="badge bg-success">Present: {{ r.present }}</span>
+                        <span class="badge bg-danger">Absent: {{ r.absent }}</span>
+                        <span class="badge bg-secondary ms-2">Total Students Recorded: {{ r.total }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted fst-italic">No attendance data found for the last 2 days.</p>
+            {% endif %}
+            
+            <hr class="my-4">
+            
+            <!-- Today's Attendance Button -->
+            <button class="btn btn-primary fw-bold w-100 py-3" type="button" data-bs-toggle="collapse" data-bs-target="#attendanceFormCollapse">
+                📅 Mark Today's Attendance ({{ today }}) »
+            </button>
+        </div>
+    </div>
+
+    <!-- Collapsible Form -->
+    <div class="collapse" id="attendanceFormCollapse">
+        <div class="card shadow-sm p-4 border-primary border-top border-4">
+            <h5 class="text-primary mb-3">Marking Attendance for {{ today }}</h5>
+            <form method="POST">
+                {% csrf_token %}
+                <table class="table table-hover mb-0 mt-3" style="border: 2px solid #000;">
+                    <thead style="background-color: #000; color: #fff;">
+                        <tr>
+                            <th><u>Roll No</u></th>
+                            <th><em>Student Name</em></th>
+                            <th class="text-center"><strong><em>Present?</em></strong></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ s.roll_number }}</span></td>
+                            <td><strong>{{ s.user.username|title }}</strong></td>
+                            <td class="text-center">
+                                <input type="checkbox" name="attendance" value="{{ s.id }}" class="form-check-input"
+                                    style="transform: scale(1.4); cursor:pointer;">
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center p-4">No students available in this class.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-success fw-bold p-3" style="font-size:1.1rem;">
+                        Save Attendance securely for {{ today }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

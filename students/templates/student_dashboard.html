@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- Welcome & Motivation Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card text-white shadow-sm border-0" style="background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%); border-radius: 12px;">
+            <div class="card-body p-4">
+                <h3 class="fw-bold mb-2">Hello, {{ profile.user.username|title }}! 👋</h3>
+                
+                {% if attendance_percentage >= 75 %}
+                <p class="mb-0 fs-5" style="color: #e8eaf6;">
+                    Fantastic job maintaining a stellar <strong>{{ attendance_percentage }}%</strong> attendance! 🌟<br>
+                    <em class="fs-6 opacity-75">"Education is the passport to the future, for tomorrow belongs to those who prepare for it today." Keep up the incredible momentum! 🚀</em>
+                </p>
+                {% elif attendance_percentage > 0 %}
+                <p class="mb-0 fs-5" style="color: #ffcdd2;">
+                    Your current attendance is <strong>{{ attendance_percentage }}%</strong>. You are currently falling behind the recommended threshold.<br>
+                    <em class="fs-6 opacity-75">"The journey of a thousand miles begins with one step." Make sure to attend your upcoming classes to stay on track! 📚</em>
+                </p>
+                {% else %}
+                <p class="mb-0 fs-5" style="color: #e8eaf6;">
+                    Welcome to your brand new portal!<br>
+                    <em class="fs-6 opacity-75">"Develop a passion for learning. If you do, you will never cease to grow." Have a great semester! 🎓</em>
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4 mb-4">
+    <!-- Fees Widget -->
+    <div class="col-md-6">
+        <div class="card p-3 text-center h-100 shadow-sm border-0 border-start border-5 border-info">
+            <h6 class="text-muted">Fee Status</h6>
+            {% if profile.fees_paid %}
+            <h4 class="text-success fw-bold">PAID ✅</h4>
+            {% else %}
+            <h4 class="text-danger fw-bold">PENDING ⚠️</h4>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Attendance Widget -->
+    <div class="col-md-6">
+        <div class="card p-3 text-center h-100 shadow-sm border-0 border-start border-5 {% if attendance_percentage >= 75 %}border-success{% else %}border-danger{% endif %}">
+            <h6 class="text-muted">Attendance Percentage</h6>
+            <h4 class="fw-bold {% if attendance_percentage >= 75 %}text-success{% else %}text-danger{% endif %}">
+                {{ attendance_percentage }}% 
+            </h4>
+            <small class="text-muted">Present for {{ present_days }} out of {{ total_days }} total days.</small>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h5>My Marks</h5>
+            <table class="table table-bordered text-center mt-3" style="border: 2px solid #000;">
+                <thead style="background-color: #000; color: #fff;">
+                    <tr>
+                        <th><u><em>Subject Areas</em></u></th>
+                        <th><u><em>Score</em></u></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="text-start">Internal Marks</td>
+                        <td class="fw-bold">{{ marks.internal_marks|default:"0" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-start">External Marks</td>
+                        <td class="fw-bold">{{ marks.external_marks|default:"0" }}</td>
+                    </tr>
+                    <tr style="background-color: #e6e6fa;">
+                        <td class="text-start"><strong><u>Total</u></strong></td>
+                        <td><strong><u>{{ marks.internal_marks|default:0|add:marks.external_marks|default:0 }}</u></strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card p-4 h-100 shadow-sm">
+            <h5 class="mb-3 text-primary">Assignment Status</h5>
+            {% for a in assignments %}
+            <div class="d-flex justify-content-between border-bottom p-3 align-items-center">
+                <span class="fw-bold">Course Assignment</span>
+                <span class="badge rounded-pill {% if a.is_submitted %}bg-success{% else %}bg-warning text-dark{% endif %}" style="font-size: 0.9rem;">
+                    {% if a.is_submitted %}Submitted{% else %}Pending{% endif %}
+                </span>
+            </div>
+            {% empty %}
+            <div class="p-3 text-muted text-center">No assignments recorded.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Campus Life Motivational Footer -->
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card shadow-lg border-0" style="background: linear-gradient(120deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%); border-radius: 15px;">
+            <div class="card-body p-4 text-center">
+                <h4 class="fw-bold" style="color: #c2185b;">✨ Enjoy Your Journey Here! ✨</h4>
+                <p class="fs-6 mt-3 mb-0" style="color: #880e4f; font-weight: 500;">
+                    Remember, college is more than just grades! Dive into <span class="badge bg-danger">Sports</span>, embrace your new <span class="badge bg-info text-dark">Campus Life</span>, and make unforgettable <span class="badge bg-primary">New Friends</span>. Maintain a healthy balance of studying hard, staying healthy, and experiencing everything this university has to offer! 🎯🏆🤝
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
