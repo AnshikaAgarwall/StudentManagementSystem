@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card card-custom p-0 overflow-hidden shadow-sm">
+    <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-primary">Class Management Control</h5>
+        <div class="text-muted small">Logged in as: <strong>Teacher Access</strong></div>
+    </div>
+    <div class="bg-light p-3 border-bottom mb-3">
+        <form method="GET" action="{% url 'dashboard' %}" class="row align-items-center">
+            <div class="col-auto">
+                <label class="fw-bold text-dark mb-0">Switch Class:</label>
+            </div>
+            <div class="col-auto">
+                <select name="class_id" class="form-select form-select-sm" onchange="this.form.submit()">
+                    {% for c in my_classes %}
+                    <option value="{{ c.id }}" {% if c.id in current_class_id_list %}selected{% endif %}>
+                        {{ c.class_name }} ({{ c.section }})
+                    </option>
+                    {% empty %}
+                    <option>No classes assigned</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <table class="table table-hover mb-0 align-middle" style="border: 2px solid #000;">
+        <thead style="background-color: #000; color: #fff;">
+            <tr>
+                <th class="ps-4"><em>Student Name</em></th>
+                <th><u>Roll No</u></th>
+                <th><u>Attendance</u></th>
+                <th><u>Assignment</u></th>
+                <th><u>Marks (%)</u></th>
+                <th><u>Fees (View)</u></th>
+                <th class="text-end pe-4"><strong><em>Control</em></strong></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in students %}
+            <tr>
+                <td class="ps-4"><strong>{{ s.user.username|title }}</strong></td>
+                <td><span class="badge bg-secondary">{{ s.roll_number }}</span></td>
+
+                <td>
+                    {% with att=s.attendance_set.last %}
+                    {% if att.status %}
+                    <span class="badge bg-success">● Present</span>
+                    {% else %}
+                    <span class="badge bg-danger">○ Absent</span>
+                    {% endif %}
+                    {% endwith %}
+                </td>
+
+                <td>
+                    {% with assign=s.assignment_set.first %}
+                    {% if assign.is_submitted %}
+                    <span class="badge rounded-pill bg-info text-dark">Submitted</span>
+                    {% else %}
+                    <span class="badge rounded-pill bg-light text-muted border">Pending</span>
+                    {% endif %}
+                    {% endwith %}
+                </td>
+
+                <td>
+                    {% with m=s.mark_set.first %}
+                    {% if m %}
+                    {{ m.internal_marks }} / {{ m.external_marks }}
+                    {% else %}
+                    <span class="text-muted small">Not Entered</span>
+                    {% endif %}
+                    {% endwith %}
+                </td>
+
+                <td>
+                    {% if s.fees_paid %}
+                    <span class="text-success small fw-bold">✔ Cleared</span>
+                    {% else %}
+                    <span class="text-danger small fw-bold">✘ Pending</span>
+                    {% endif %}
+                </td>
+
+                <td class="text-end pe-4">
+                    <a href="{% url 'update_student' s.id %}" class="btn btn-sm btn-warning fw-bold">Update Marks</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center p-5 text-muted">No students registered in the system yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+
+</div>
+
+<div class="mt-4 alert alert-info d-flex align-items-center">
+    <span class="me-2">ℹ️</span>
+    <small><strong>Teacher Note:</strong> Fees status is managed by the Accounts/Admin department and is displayed here
+        for reference only.</small>
+</div>
+{% endblock %}

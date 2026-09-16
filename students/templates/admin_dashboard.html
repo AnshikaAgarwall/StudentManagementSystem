@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white p-3">Total Students: {{ total_students }}</div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-danger text-white p-3">Unpaid Fees: {{ unpaid_fees }}</div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white p-3">Teachers: {{ total_teachers }}</div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h4>Master Records</h4>
+            <a href="{% url 'register_student' %}" class="btn btn-dark">+ Add New Student Account</a>
+        </div>
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Name</th>
+                    <th>Roll No</th>
+                    <th>Dept</th>
+                    <th>Fees</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>{{ s.user.username|title }}</td>
+                    <td>{{ s.roll_number }}</td>
+                    <td>{{ s.department }}</td>
+                    <td>
+                        {% if s.fees_paid %}
+                        <span class="badge bg-success">Paid</span>
+                        {% else %}
+                        <span class="badge bg-danger">Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/admin/students/studentprofile/{{ s.id }}/change/"
+                            class="btn btn-sm btn-outline-primary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
