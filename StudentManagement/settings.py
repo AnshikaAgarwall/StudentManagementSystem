@@ -16,16 +16,18 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+import os
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-r71ld=d3w%(l15vwlg4cx*dry1z&2mh$w4m-ya2rzptkk+$5ue'
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-r71ld=d3w%(l15vwlg4cx*dry1z&2mh$w4m-ya2rzptkk+$5ue')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -37,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'students', #ye mene bnaya h
+    'students.apps.StudentsConfig',
 ]
 
 MIDDLEWARE = [
@@ -80,6 +82,15 @@ DATABASES = {
     }
 }
 
+# Auto-detect Cloud PostgreSQL (Render, Railway, Neon) if DATABASE_URL is provided
+database_url = os.environ.get('DATABASE_URL')
+if database_url:
+    try:
+        import dj_database_url
+        DATABASES['default'] = dj_database_url.config(default=database_url, conn_max_age=600)
+    except ImportError:
+        pass
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -116,3 +127,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media files (Uploaded Assignments, Documents)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

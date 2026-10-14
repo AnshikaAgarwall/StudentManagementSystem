@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">{{ assignment.title }}</h1>
+        <div class="page-subtitle">
+            Class: <strong>{{ assignment.assigned_class.class_name }} (Section {{ assignment.assigned_class.section }})</strong>
+            • Due: <strong>{{ assignment.due_date|default:"No deadline" }}</strong>
+        </div>
+    </div>
+    <a href="{% url 'manage_assignments' %}" class="btn-modern-secondary">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Assignments</span>
+    </a>
+</div>
+
+<!-- Overview Stats Banner -->
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card-modern p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Submission Progress</span>
+                    <h3 class="fw-bold mt-1 mb-0" style="color: #0f172a;">{{ total_submitted }} / {{ total_enrolled }}</h3>
+                    <small class="text-muted">Students have turned in their coursework</small>
+                </div>
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="bi bi-check2-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-modern p-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase">Pending Submissions</span>
+                    <h3 class="fw-bold mt-1 mb-0" style="color: #ef4444;">{{ total_enrolled|add:"-"|add:total_submitted }}</h3>
+                    <small class="text-muted">Awaiting student file uploads</small>
+                </div>
+                <div style="width: 46px; height: 46px; border-radius: 12px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.3rem;">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Student Submissions Table -->
+<div class="card-modern">
+    <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-1" style="color: #0f172a;">Student Submission Roster</h5>
+            <small class="text-muted">Download student PDF/Word files and verify timely submissions</small>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Uploaded Document</th>
+                    <th>Student Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in roster %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                {{ item.student.user.username|slice:":1"|upper }}
+                            </div>
+                            <span class="fw-semibold text-dark">{{ item.student.user.username|title }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-secondary fw-semibold font-monospace small">{{ item.student.roll_number }}</span>
+                    </td>
+                    <td>
+                        {% if item.is_submitted %}
+                        <span class="status-chip success"><span class="dot"></span> Submitted</span>
+                        {% else %}
+                        <span class="status-chip warning"><span class="dot"></span> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_submitted %}
+                        <span class="text-dark small fw-medium">{{ item.submission.submitted_at|date:"M d, Y • h:i A" }}</span>
+                        {% else %}
+                        <span class="text-muted small">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.is_submitted and item.submission.submission_file %}
+                        <a href="{{ item.submission.submission_file.url }}" target="_blank" class="btn btn-sm btn-outline-primary py-1 px-3 d-inline-flex align-items-center gap-1" style="border-radius: 8px;">
+                            <i class="bi bi-file-earmark-arrow-down-fill"></i>
+                            <span>Download File</span>
+                        </a>
+                        {% else %}
+                        <span class="text-muted small">No file uploaded</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="text-muted small">{{ item.submission.notes|default:"—" }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

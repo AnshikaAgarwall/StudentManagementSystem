@@ -3,99 +3,521 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>SMS | Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMS | EduManage Portal</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5.3 & Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    
     <style>
+        :root {
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --bg-canvas: #f8fafc;
+            --bg-card: #ffffff;
+            --border-subtle: #e2e8f0;
+            --border-light: #f1f5f9;
+            --text-heading: #0f172a;
+            --text-body: #334155;
+            --text-muted: #64748b;
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --primary-subtle: #eef2ff;
+            --sidebar-bg: #0f172a;
+            --sidebar-border: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background: #e6e6fa;
-            /* Classic Soft Lavender */
-            font-family: sans-serif;
-            color: #000;
+            font-family: var(--font-family);
+            background-color: var(--bg-canvas);
+            color: var(--text-body);
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* Sidebar Styling */
         .sidebar {
+            width: 260px;
             height: 100vh;
-            width: 240px;
             position: fixed;
-            background: #0d6efd;
-            /* Solid Blue */
-            color: white;
-            padding: 20px;
-            border-right: 6px solid #000;
-            /* Bold Black Separation */
+            top: 0;
+            left: 0;
+            background: linear-gradient(180deg, #0f172a 0%, #090d16 100%);
+            border-right: 1px solid var(--sidebar-border);
+            padding: 24px 18px;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
         }
 
-        .sidebar h3 {
-            font-weight: 800;
-            text-decoration: underline;
-            letter-spacing: 1px;
-            color: #fff;
-        }
-
-        .sidebar a {
-            color: #e6e6fa;
-            /* Lavender Text */
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 6px 10px 24px 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 20px;
             text-decoration: none;
-            display: block;
-            padding: 12px;
-            border-radius: 5px;
+        }
+
+        .sidebar-brand-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+        }
+
+        .sidebar-brand-text h4 {
+            color: #ffffff;
+            font-size: 1.05rem;
             font-weight: 700;
-            /* Bold links */
-            transition: all 0.2s;
-            margin-bottom: 5px;
+            letter-spacing: -0.02em;
+            margin: 0;
         }
 
-        .sidebar a:hover {
-            background: #000;
-            /* High contrast hover */
-            color: #fff;
-            text-decoration: underline;
-            transform: translateX(4px);
+        .sidebar-brand-text span {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
         }
 
+        .nav-label {
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 10px 12px 6px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex-grow: 1;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .sidebar-nav a i {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .sidebar-nav a:hover {
+            color: #ffffff;
+            background: rgba(255, 255, 255, 0.06);
+            transform: translateX(3px);
+        }
+
+        .sidebar-nav a:hover i {
+            transform: scale(1.1);
+            color: #818cf8;
+        }
+
+        .sidebar-nav a.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(79, 70, 229, 0.1) 100%);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            font-weight: 600;
+        }
+
+        .sidebar-nav a.active i {
+            color: #818cf8;
+        }
+
+        /* Sidebar User Profile Card */
+        .sidebar-footer {
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .user-mini-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+        }
+
+        .user-info {
+            flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .user-name {
+            color: #ffffff;
+            font-size: 0.85rem;
+            font-weight: 600;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+
+        .user-role {
+            color: #94a3b8;
+            font-size: 0.72rem;
+        }
+
+        .btn-logout {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 9px;
+            color: #f87171;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.18);
+            color: #fca5a5;
+        }
+
+        /* Content Area */
         .content {
             margin-left: 260px;
-            padding: 30px;
+            padding: 32px 40px;
+            min-height: 100vh;
         }
 
-        .card {
-            border: 2px solid #000;
-            border-radius: 12px;
-            box-shadow: 4px 4px 0px #000;
-            /* Brutalist shadow */
+        /* Top Header */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+
+        .page-title {
+            font-size: 1.55rem;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            color: var(--text-heading);
+            margin: 0;
+        }
+
+        .page-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Modern Card Component */
+        .card-modern {
+            background: #ffffff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.03), 0 1px 2px -1px rgba(15, 23, 42, 0.02);
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+            overflow: hidden;
+        }
+
+        .card-modern:hover {
+            box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.06);
+            border-color: #cbd5e1;
+        }
+
+        /* Status Chips (Instead of tacky pills) */
+        .status-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.01em;
+        }
+
+        .status-chip .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-chip.success {
+            background-color: #ecfdf5;
+            color: #047857;
+        }
+        .status-chip.success .dot {
+            background-color: #10b981;
+        }
+
+        .status-chip.danger {
+            background-color: #fef2f2;
+            color: #b91c1c;
+        }
+        .status-chip.danger .dot {
+            background-color: #ef4444;
+        }
+
+        .status-chip.warning {
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+        .status-chip.warning .dot {
+            background-color: #f59e0b;
+        }
+
+        .status-chip.info {
+            background-color: #eff6ff;
+            color: #1d4ed8;
+        }
+        .status-chip.info .dot {
+            background-color: #3b82f6;
+        }
+
+        .status-chip.neutral {
+            background-color: #f1f5f9;
+            color: #475569;
+        }
+        .status-chip.neutral .dot {
+            background-color: #94a3b8;
+        }
+
+        /* Modern Tables */
+        .table-modern {
+            width: 100%;
+            margin-bottom: 0;
+            vertical-align: middle;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table-modern thead th {
+            background-color: #f8fafc;
+            color: #64748b;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border-subtle);
+            white-space: nowrap;
+        }
+
+        .table-modern tbody td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-body);
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: background 0.15s ease;
+        }
+
+        .table-modern tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .table-modern tbody tr:hover td {
+            background-color: #f8fafc;
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            color: var(--text-heading);
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+        }
+
+        /* Modern Buttons */
+        .btn-modern-primary {
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+        }
+
+        .btn-modern-primary:hover {
+            background: linear-gradient(135deg, #4338ca 0%, #3730a3 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-modern-secondary {
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 9px 18px;
+            font-weight: 600;
+            font-size: 0.88rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-modern-secondary:hover {
+            background: #f8fafc;
+            color: #0f172a;
+            border-color: #cbd5e1;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <h3>SMS Portal</h3>
-        <hr>
-        <a href="{% url 'dashboard' %}">🏠 Dashboard</a>
-        {% if user.is_superuser %}
-        <a href="/admin" class="text-warning">⚙️ Admin Panel</a>
-        {% endif %}
+    <!-- Modern Sidebar -->
+    <aside class="sidebar">
+        <a href="{% url 'dashboard' %}" class="sidebar-brand">
+            <div class="sidebar-brand-icon">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div class="sidebar-brand-text">
+                <h4>EduManage</h4>
+                <span>Portal System</span>
+            </div>
+        </a>
 
-        {% if user.is_staff or user.is_superuser or 'teacher' in user.username %}
-        <a href="{% url 'mark_attendance' %}">📋 Mark Attendance</a>
-        {% endif %}
+        <div class="nav-label">Navigation</div>
+        <ul class="sidebar-nav">
+            <li>
+                <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                    <i class="bi bi-grid-1x2-fill"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
-        <form action="{% url 'logout' %}" method="post" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-link mt-5 text-danger p-0 text-decoration-none">🚪 Logout</button>
-        </form>
-    </div>
-    <div class="content">
-        {% if user.is_staff or user.is_superuser or 'teacher' in user.username %}
-        <div class="d-flex justify-content-between mb-4">
-            <h4>Welcome, {{ user.username|title }}</h4>
-            <span class="badge bg-dark p-2">
-                Role: Teacher/Admin
-            </span>
+            {% if user.is_staff or user.is_superuser %}
+            <li>
+                <a href="{% url 'mark_attendance' %}" class="{% if request.resolver_match.url_name == 'mark_attendance' %}active{% endif %}">
+                    <i class="bi bi-clipboard-check-fill"></i>
+                    <span>Attendance Hub</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'manage_assignments' %}" class="{% if request.resolver_match.url_name == 'manage_assignments' or request.resolver_match.url_name == 'view_submissions' %}active{% endif %}">
+                    <i class="bi bi-journal-text"></i>
+                    <span>Assignments</span>
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url 'student_assignments' %}" class="{% if request.resolver_match.url_name == 'student_assignments' %}active{% endif %}">
+                    <i class="bi bi-journal-check"></i>
+                    <span>My Assignments</span>
+                </a>
+            </li>
+            {% endif %}
+
+            {% if user.is_superuser %}
+            <div class="nav-label mt-3">Administration</div>
+            <li>
+                <a href="{% url 'register_student' %}" class="{% if request.resolver_match.url_name == 'register_student' %}active{% endif %}">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>Add Student</span>
+                </a>
+            </li>
+            <li>
+                <a href="/admin" target="_blank">
+                    <i class="bi bi-shield-lock-fill"></i>
+                    <span>Django Admin</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+
+        <!-- User Profile & Logout -->
+        <div class="sidebar-footer">
+            <div class="user-mini-card">
+                <div class="user-avatar">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div class="user-info">
+                    <div class="user-name">{{ user.username|title }}</div>
+                    <div class="user-role">
+                        {% if user.is_superuser %}Administrator{% elif user.is_staff %}Faculty / Teacher{% else %}Student{% endif %}
+                    </div>
+                </div>
+            </div>
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn-logout">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Sign Out</span>
+                </button>
+            </form>
         </div>
-        {% endif %}
+    </aside>
+
+    <!-- Main Content Canvas -->
+    <main class="content">
         {% block content %}{% endblock %}
-    </div>
+    </main>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

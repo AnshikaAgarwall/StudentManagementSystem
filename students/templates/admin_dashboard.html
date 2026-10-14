@@ -1,49 +1,130 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white p-3">Total Students: {{ total_students }}</div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-danger text-white p-3">Unpaid Fees: {{ unpaid_fees }}</div>
-        </div>
-        <div class="col-md-4">
-            <div class="card bg-success text-white p-3">Teachers: {{ total_teachers }}</div>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Institution Master Overview</h1>
+        <div class="page-subtitle">Centralized administrative control of students, faculty, and fee reconciliations</div>
+    </div>
+    <a href="{% url 'register_student' %}" class="btn-modern-primary">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Register New Student</span>
+    </a>
+</div>
+
+<!-- Stat Metric Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card-modern p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Total Students</span>
+                    <h2 class="fw-bold mt-2 mb-0" style="color: #0f172a;">{{ total_students }}</h2>
+                    <small class="text-muted mt-1 d-block">Active accounts in system</small>
+                </div>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="card shadow-sm p-4">
-        <div class="d-flex justify-content-between mb-3">
-            <h4>Master Records</h4>
-            <a href="{% url 'register_student' %}" class="btn btn-dark">+ Add New Student Account</a>
+    <div class="col-md-4">
+        <div class="card-modern p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Unpaid Tuition</span>
+                    <h2 class="fw-bold mt-2 mb-0" style="color: #0f172a;">{{ unpaid_fees }}</h2>
+                    <small class="text-danger mt-1 d-block fw-medium">Pending fee clearances</small>
+                </div>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #fef2f2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+            </div>
         </div>
-        <table class="table table-hover">
-            <thead class="table-light">
+    </div>
+
+    <div class="col-md-4">
+        <div class="card-modern p-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <span class="text-muted small fw-semibold text-uppercase" style="letter-spacing: 0.05em;">Faculty Staff</span>
+                    <h2 class="fw-bold mt-2 mb-0" style="color: #0f172a;">{{ total_teachers }}</h2>
+                    <small class="text-success mt-1 d-block fw-medium">Active teaching professors</small>
+                </div>
+                <div style="width: 48px; height: 48px; border-radius: 12px; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; font-size: 1.4rem;">
+                    <i class="bi bi-person-workspace"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Master Records Table -->
+<div class="card-modern">
+    <div class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-1" style="color: #0f172a;">Master Student Database</h5>
+            <small class="text-muted">All active registered profiles across all academic departments</small>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Roll No</th>
-                    <th>Dept</th>
-                    <th>Fees</th>
-                    <th>Action</th>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                    <th>Department</th>
+                    <th>Assigned Class</th>
+                    <th>Fee Status</th>
+                    <th class="text-end">Manage</th>
                 </tr>
             </thead>
             <tbody>
                 {% for s in students %}
                 <tr>
-                    <td>{{ s.user.username|title }}</td>
-                    <td>{{ s.roll_number }}</td>
-                    <td>{{ s.department }}</td>
                     <td>
-                        {% if s.fees_paid %}
-                        <span class="badge bg-success">Paid</span>
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                {{ s.user.username|slice:":1"|upper }}
+                            </div>
+                            <span class="fw-semibold text-dark">{{ s.user.username|title }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-secondary fw-semibold font-monospace" style="font-size: 0.82rem;">{{ s.roll_number }}</span>
+                    </td>
+                    <td>
+                        <span class="text-secondary">{{ s.department }}</span>
+                    </td>
+                    <td>
+                        {% if s.assigned_class %}
+                        <span class="status-chip info">
+                            <span class="dot"></span> {{ s.assigned_class.class_name }} ({{ s.assigned_class.section }})
+                        </span>
                         {% else %}
-                        <span class="badge bg-danger">Unpaid</span>
+                        <span class="status-chip warning"><span class="dot"></span> Unassigned</span>
                         {% endif %}
                     </td>
                     <td>
-                        <a href="/admin/students/studentprofile/{{ s.id }}/change/"
-                            class="btn btn-sm btn-outline-primary">Edit</a>
+                        {% if s.fees_paid %}
+                        <span class="status-chip success"><span class="dot"></span> Cleared</span>
+                        {% else %}
+                        <span class="status-chip danger"><span class="dot"></span> Pending</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="/admin/students/studentprofile/{{ s.id }}/change/" target="_blank" class="btn-modern-secondary btn-sm py-1 px-3">
+                            <i class="bi bi-gear"></i>
+                            <span>Admin Edit</span>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        No students registered yet. Click "Register New Student" above to add one.
                     </td>
                 </tr>
                 {% endfor %}

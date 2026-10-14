@@ -1,103 +1,162 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="card card-custom p-0 overflow-hidden shadow-sm">
-    <div class="p-4 bg-white border-bottom d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 text-primary">Class Management Control</h5>
-        <div class="text-muted small">Logged in as: <strong>Teacher Access</strong></div>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Class Management</h1>
+        <div class="page-subtitle">Overview of enrolled students, live attendance, and academic grades</div>
     </div>
-    <div class="bg-light p-3 border-bottom mb-3">
-        <form method="GET" action="{% url 'dashboard' %}" class="row align-items-center">
-            <div class="col-auto">
-                <label class="fw-bold text-dark mb-0">Switch Class:</label>
-            </div>
-            <div class="col-auto">
-                <select name="class_id" class="form-select form-select-sm" onchange="this.form.submit()">
+    {% if current_class %}
+    <div class="d-flex gap-2">
+        <a href="{% url 'export_attendance' %}?class_id={{ current_class.id }}" class="btn-modern-secondary" title="Export this class attendance to Excel">
+            <i class="bi bi-file-earmark-spreadsheet-fill text-success"></i>
+            <span>Export Monthly Excel</span>
+        </a>
+        {% if today_taken %}
+        <a href="{% url 'mark_attendance' %}?class_id={{ current_class.id }}" class="btn-modern-secondary">
+            <i class="bi bi-pencil-square text-primary"></i>
+            <span>Edit Today's Attendance ({{ today_present_count }} Present)</span>
+        </a>
+        {% else %}
+        <a href="{% url 'mark_attendance' %}?class_id={{ current_class.id }}" class="btn-modern-primary">
+            <i class="bi bi-clipboard-check"></i>
+            <span>Take Today's Attendance</span>
+        </a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Class Switcher & Metrics Header -->
+<div class="card-modern p-4 mb-4">
+    <div class="row align-items-center g-3">
+        <div class="col-md-5">
+            <form method="GET" action="{% url 'dashboard' %}" class="d-flex align-items-center gap-3">
+                <label class="form-label text-nowrap fw-semibold text-secondary mb-0">Select Class:</label>
+                <select name="class_id" class="form-select" onchange="this.form.submit()">
                     {% for c in my_classes %}
                     <option value="{{ c.id }}" {% if c.id in current_class_id_list %}selected{% endif %}>
-                        {{ c.class_name }} ({{ c.section }})
+                        {{ c.class_name }} (Section {{ c.section }})
                     </option>
                     {% empty %}
                     <option>No classes assigned</option>
                     {% endfor %}
                 </select>
-            </div>
-        </form>
+            </form>
+        </div>
+        <div class="col-md-7 text-md-end text-secondary small">
+            {% if current_class %}
+            <span class="me-3">
+                <i class="bi bi-people me-1 text-primary"></i> <strong>{{ students.count }}</strong> Enrolled Students
+            </span>
+            <span>
+                <i class="bi bi-calendar3 me-1 text-primary"></i> Today: <strong>{{ today|date:"M d, Y" }}</strong>
+            </span>
+            {% endif %}
+        </div>
     </div>
-
-    <table class="table table-hover mb-0 align-middle" style="border: 2px solid #000;">
-        <thead style="background-color: #000; color: #fff;">
-            <tr>
-                <th class="ps-4"><em>Student Name</em></th>
-                <th><u>Roll No</u></th>
-                <th><u>Attendance</u></th>
-                <th><u>Assignment</u></th>
-                <th><u>Marks (%)</u></th>
-                <th><u>Fees (View)</u></th>
-                <th class="text-end pe-4"><strong><em>Control</em></strong></th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for s in students %}
-            <tr>
-                <td class="ps-4"><strong>{{ s.user.username|title }}</strong></td>
-                <td><span class="badge bg-secondary">{{ s.roll_number }}</span></td>
-
-                <td>
-                    {% with att=s.attendance_set.last %}
-                    {% if att.status %}
-                    <span class="badge bg-success">● Present</span>
-                    {% else %}
-                    <span class="badge bg-danger">○ Absent</span>
-                    {% endif %}
-                    {% endwith %}
-                </td>
-
-                <td>
-                    {% with assign=s.assignment_set.first %}
-                    {% if assign.is_submitted %}
-                    <span class="badge rounded-pill bg-info text-dark">Submitted</span>
-                    {% else %}
-                    <span class="badge rounded-pill bg-light text-muted border">Pending</span>
-                    {% endif %}
-                    {% endwith %}
-                </td>
-
-                <td>
-                    {% with m=s.mark_set.first %}
-                    {% if m %}
-                    {{ m.internal_marks }} / {{ m.external_marks }}
-                    {% else %}
-                    <span class="text-muted small">Not Entered</span>
-                    {% endif %}
-                    {% endwith %}
-                </td>
-
-                <td>
-                    {% if s.fees_paid %}
-                    <span class="text-success small fw-bold">✔ Cleared</span>
-                    {% else %}
-                    <span class="text-danger small fw-bold">✘ Pending</span>
-                    {% endif %}
-                </td>
-
-                <td class="text-end pe-4">
-                    <a href="{% url 'update_student' s.id %}" class="btn btn-sm btn-warning fw-bold">Update Marks</a>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="7" class="text-center p-5 text-muted">No students registered in the system yet.</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
-
 </div>
 
-<div class="mt-4 alert alert-info d-flex align-items-center">
-    <span class="me-2">ℹ️</span>
-    <small><strong>Teacher Note:</strong> Fees status is managed by the Accounts/Admin department and is displayed here
-        for reference only.</small>
+<!-- Students Master Table Card -->
+<div class="card-modern">
+    <div class="p-4 border-bottom d-flex justify-content-between align-items-center bg-white">
+        <div>
+            <h5 class="fw-bold mb-1" style="color: #0f172a;">Student Performance & Records</h5>
+            <small class="text-muted">Live attendance status and latest coursework evaluation</small>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Roll Number</th>
+                    <th>Attendance</th>
+                    <th>Assignment</th>
+                    <th>Marks (Int / Ext)</th>
+                    <th>Tuition Fees</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <div style="width: 36px; height: 36px; border-radius: 8px; background: #eef2ff; color: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">
+                                {{ s.user.username|slice:":1"|upper }}
+                            </div>
+                            <div>
+                                <div class="fw-semibold text-dark">{{ s.user.username|title }}</div>
+                                <small class="text-muted">{{ s.department }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-secondary fw-semibold font-monospace" style="font-size: 0.82rem;">{{ s.roll_number }}</span>
+                    </td>
+                    <td>
+                        {% with att=s.attendance_set.last %}
+                        {% if att %}
+                            {% if att.status %}
+                            <span class="status-chip success"><span class="dot"></span> Present</span>
+                            {% else %}
+                            <span class="status-chip danger"><span class="dot"></span> Absent</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="status-chip neutral"><span class="dot"></span> No Record</span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% with assign=s.assignment_set.first %}
+                        {% if assign.is_submitted %}
+                        <span class="status-chip success"><span class="dot"></span> Submitted</span>
+                        {% else %}
+                        <span class="status-chip warning"><span class="dot"></span> Pending</span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% with m=s.mark_set.first %}
+                        {% if m %}
+                        <span class="fw-semibold text-dark">{{ m.internal_marks }}</span>
+                        <span class="text-muted">/ 30</span>
+                        <span class="text-secondary mx-1">•</span>
+                        <span class="fw-semibold text-dark">{{ m.external_marks }}</span>
+                        <span class="text-muted">/ 70</span>
+                        {% else %}
+                        <span class="text-muted fst-italic small">Not Entered</span>
+                        {% endif %}
+                        {% endwith %}
+                    </td>
+                    <td>
+                        {% if s.fees_paid %}
+                        <span class="status-chip success"><span class="dot"></span> Paid</span>
+                        {% else %}
+                        <span class="status-chip danger"><span class="dot"></span> Unpaid</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{% url 'update_student' s.id %}" class="btn-modern-secondary btn-sm py-1 px-3">
+                            <i class="bi bi-pencil-square"></i>
+                            <span>Edit Marks</span>
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <div class="py-4">
+                            <i class="bi bi-mortarboard text-secondary" style="font-size: 2.5rem; opacity: 0.5;"></i>
+                            <p class="mt-2 mb-0 fw-medium">No students registered in this class section yet.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title">My Class Assignments</h1>
+        <div class="page-subtitle">
+            Coursework and projects assigned to 
+            <strong>{{ profile.assigned_class.class_name }} (Section {{ profile.assigned_class.section }})</strong>
+        </div>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn-modern-secondary">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Dashboard</span>
+    </a>
+</div>
+
+<!-- Assignments List with Submission Form Modal -->
+<div class="row g-4">
+    {% for item in assignments_with_status %}
+    <div class="col-lg-6">
+        <div class="card-modern h-100 p-4 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="status-chip info">
+                        <span class="dot"></span> {{ item.assignment.assigned_class.class_name }}
+                    </span>
+                    <div>
+                        {% if item.is_submitted %}
+                        <span class="status-chip success"><span class="dot"></span> Submitted</span>
+                        {% else %}
+                        <span class="status-chip warning"><span class="dot"></span> Pending</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <h4 class="fw-bold text-dark mt-2 mb-2">{{ item.assignment.title }}</h4>
+                <p class="text-secondary small mb-3">
+                    {{ item.assignment.description|default:"Please complete the assignment according to the teacher guidelines." }}
+                </p>
+
+                <div class="p-3 rounded-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="d-flex justify-content-between align-items-center text-muted small">
+                        <span>
+                            <i class="bi bi-calendar-event me-1"></i> Due Date:
+                            <strong class="text-dark">{{ item.assignment.due_date|default:"Open Ended" }}</strong>
+                        </span>
+                        {% if item.assignment.reference_file %}
+                        <a href="{{ item.assignment.reference_file.url }}" target="_blank" class="text-primary fw-semibold text-decoration-none">
+                            <i class="bi bi-download me-1"></i> Question Paper
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submission Area -->
+            <div class="border-top pt-3 mt-3">
+                {% if item.is_submitted %}
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="text-success fw-semibold small">
+                            <i class="bi bi-check-circle-fill me-1"></i> Turned in on {{ item.submission.submitted_at|date:"M d, Y" }}
+                        </div>
+                        <a href="{{ item.submission.submission_file.url }}" target="_blank" class="small text-muted text-decoration-underline">
+                            View uploaded document
+                        </a>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#submitModal{{ item.assignment.id }}">
+                        Re-upload File
+                    </button>
+                </div>
+                {% else %}
+                <button class="btn-modern-primary w-100 justify-content-center py-2" data-bs-toggle="modal" data-bs-target="#submitModal{{ item.assignment.id }}">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                    <span>Upload & Submit Assignment</span>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for File Upload -->
+    <div class="modal fade" id="submitModal{{ item.assignment.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content card-modern p-0">
+                <div class="modal-header border-bottom p-4">
+                    <h5 class="modal-title fw-bold" style="color: #0f172a;">
+                        <i class="bi bi-file-earmark-arrow-up text-primary me-2"></i> Submit Assignment
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="assignment_id" value="{{ item.assignment.id }}">
+                    <div class="modal-body p-4">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small">Assignment</label>
+                            <div class="form-control bg-light">{{ item.assignment.title }}</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small">Attach Document (PDF, Word, Docx)</label>
+                            <input type="file" name="submission_file" class="form-control" accept=".pdf,.doc,.docx" required>
+                            <small class="text-muted">Accepted formats: <code>.pdf</code>, <code>.doc</code>, <code>.docx</code></small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-dark small">Notes / Comments (Optional)</label>
+                            <textarea name="notes" class="form-control" rows="2" placeholder="e.g. Completed all questions, student roll no, etc."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top p-3 bg-light">
+                        <button type="button" class="btn-modern-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-modern-primary">
+                            <i class="bi bi-check-lg"></i>
+                            <span>Turn In Assignment</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card-modern p-5 text-center text-muted">
+            <i class="bi bi-check2-circle text-success" style="font-size: 3rem;"></i>
+            <h5 class="fw-bold mt-3 text-dark">No Pending Coursework!</h5>
+            <p class="mb-0 small">Your teachers have not posted any new assignments for your class section.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

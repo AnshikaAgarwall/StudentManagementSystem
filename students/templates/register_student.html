@@ -1,34 +1,91 @@
 {% extends 'base.html' %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="card shadow-lg border-0" style="max-width: 500px; margin: auto;">
-        <div class="card-header bg-dark text-white text-center py-3">
-            <h5 class="mb-0">New Student Registration</h5>
-        </div>
-        <div class="card-body p-4">
-            <form method="POST">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Full Name (Username)</label>
-                    <input type="text" name="username" class="form-control" placeholder="Enter Student Name" required>
+<div class="page-header">
+    <div>
+        <h1 class="page-title">Register New Student</h1>
+        <div class="page-subtitle">Create login credentials and enroll student into an academic class section</div>
+    </div>
+    <a href="{% url 'dashboard' %}" class="btn-modern-secondary">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Dashboard</span>
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6 col-md-8">
+        <div class="card-modern">
+            <div class="p-4 border-bottom bg-white">
+                <h5 class="fw-bold mb-1" style="color: #0f172a;">Student Enrollment Form</h5>
+                <small class="text-muted">Fill out both account security details and college academic attributes</small>
+            </div>
+
+            <div class="p-4">
+                {% if error %}
+                <div class="alert alert-danger d-flex align-items-center gap-2 p-3 mb-4 rounded-3" role="alert">
+                    <i class="bi bi-exclamation-octagon-fill"></i>
+                    <div>{{ error }}</div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Set Password</label>
-                    <input type="password" name="password" class="form-control" value="password123" required>
-                    <small class="text-muted">Default is password123</small>
-                </div>
-                <hr>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Roll Number</label>
-                    <input type="text" name="roll_number" class="form-control" placeholder="MCA/2026/XX" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Department</label>
-                    <input type="text" name="department" class="form-control" value="MCA" required>
-                </div>
-                <button type="submit" class="btn btn-success w-100 py-2 mt-3">Register Student & Create Account</button>
-                <a href="{% url 'dashboard' %}" class="btn btn-link w-100 text-decoration-none mt-2">Cancel</a>
-            </form>
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <h6 class="fw-bold text-primary mb-3 small text-uppercase" style="letter-spacing: 0.05em;">
+                        <i class="bi bi-person-badge me-1"></i> Account Credentials
+                    </h6>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark">Full Name / Username</label>
+                        <input type="text" name="username" class="form-control" placeholder="e.g. rohit_kumar" required>
+                        <small class="text-muted">This will be used as their login username.</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold text-dark">Default Password</label>
+                        <input type="password" name="password" class="form-control" value="password123" required>
+                        <small class="text-muted">Default is set to <code>password123</code> (student can update later).</small>
+                    </div>
+
+                    <hr class="my-4" style="border-color: #e2e8f0;">
+
+                    <h6 class="fw-bold text-primary mb-3 small text-uppercase" style="letter-spacing: 0.05em;">
+                        <i class="bi bi-mortarboard me-1"></i> Academic Class Section
+                    </h6>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-dark">Assign to Class & Section</label>
+                        <select name="assigned_class" class="form-select" required>
+                            <option value="">-- Choose Class & Section --</option>
+                            {% for c in classes %}
+                            <option value="{{ c.id }}">{{ c.class_name }} (Section {{ c.section }})</option>
+                            {% endfor %}
+                        </select>
+                        <small class="text-muted">Maps student to faculty teacher dashboard.</small>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark">Roll Number</label>
+                            <input type="text" name="roll_number" class="form-control font-monospace" placeholder="e.g. MCA/2026/012" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark">Department</label>
+                            <input type="text" name="department" class="form-control" value="MCA" required>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-3 pt-2">
+                        <button type="submit" class="btn-modern-primary flex-grow-1 justify-content-center py-2">
+                            <i class="bi bi-person-check-fill"></i>
+                            <span>Create Student Account</span>
+                        </button>
+                        <a href="{% url 'dashboard' %}" class="btn-modern-secondary justify-content-center py-2 px-4">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
